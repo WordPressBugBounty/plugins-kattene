@@ -2,10 +2,10 @@
 /*
 Plugin Name: Kattene
 Author: webfood
-Plugin URI: http://webfood.info/make-kattene/
+Plugin URI: https://webfood.info/make-kattene/
 Description: kattene.
-Version: 2.1
-Author URI: http://webfood.info/
+Version: 2.2
+Author URI: https://webfood.info/
 Text Domain: kattene
 Domain Path: /languages
 
@@ -13,7 +13,7 @@ License:
  Released under the GPL license
   http://www.gnu.org/copyleft/gpl.html
 
-  Copyright 2019 (email : webfood.info@gmail.com)
+  Copyright 2025 (email : webfood.info@gmail.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,10 +34,9 @@ function kattene_func( $args, $content ) {
   $opt = array(
     'width'  => 160,
     'height' => 160,
-    'shadow' => true,
+    'shadow' => false,
     'no_target_blank' => false,
-    'custom' => false,
-    'mercari_tool' => 'kattene'
+    'custom' => false
   );
   $opt = apply_filters('kattene', $opt);
 
@@ -67,13 +66,6 @@ function kattene_func( $args, $content ) {
   $arr = json_decode($content,true);
   $sites = $arr["sites"];
   
-  foreach($sites as &$site){
-    if(strpos($site["url"],'mercari.com') && strpos($site["url"],'afid=') && !strpos($site["url"],'utm_source='.$opt['mercari_tool'])){
-      $site["url"] = $site["url"].'&utm_source='.$opt['mercari_tool'];
-    }
-  }
-  unset($site);
-
   $main_tmp = array_filter($sites,
     function($site){
       return isset($site["main"]) && $site["main"];
@@ -110,7 +102,20 @@ function kattene_func( $args, $content ) {
     .'</a></div>
     <div class="kattene__infopart">
       <div class="kattene__title"><a'.$target_blank_str.' href="'.kattene_esc($main["url"]).'">'.kattene_esc($arr["title"]).'</a></div>
-      <div class="kattene__description">'.kattene_esc($arr["description"]).'</div>
+      <div class="kattene__description">';
+      
+  if(is_array($arr["description"])){
+    foreach($arr["description"] as $i => $description){
+      if($i >= 1){
+        $str .= "<br/>";
+      }
+      $str .= kattene_esc($description);
+    }
+  }else{
+    $str .= kattene_esc($arr["description"]);
+  }
+  
+  $str .= '</div>
       <div class="kattene__btns '.$num_class.'">';
 
   foreach($sites as $site){
